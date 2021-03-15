@@ -1,18 +1,16 @@
 /*GitHub Scrapper - Made by Abhishek Mishra
 */ 
-
 let request = require('request');
 let cheerio = require('cheerio');
 let fs = require("fs");
 let pdf = require("pdfkit");
 let $;
 
-
 let args = process.argv.slice(2)
 
 if(args.includes("-h")){
     //help
-    console.log("\nEnter the Number of projects of top topics that you want to scrap issued of\n") 
+    console.log("\nEnter the Number of projects of top topics that you want to scrap issues of\n") 
     process.exit();
 }
 
@@ -56,7 +54,7 @@ function fileGen(url, name){
                     let string = "https://github.com" + item(repoLink[i]).attr("href");
                     if(string !== undefined){
                         console.log(item(repoLink[i]).text().trim());
-                        getIssuesList(string + "/issues", name);
+                        getIssuesList(string + "/issues", name,item(repoLink[i]).text().trim());
                 }
             }
         }
@@ -64,7 +62,7 @@ function fileGen(url, name){
 
 }
 
-function getIssuesList(url, name){
+function getIssuesList(url, name, projectName){
     
     //use this incase you want to store the url and names in a list
     let urlIsssue = []
@@ -78,17 +76,17 @@ function getIssuesList(url, name){
           if(!err){
             let dataIssues = cheerio.load(body);
             let issueList = dataIssues(".Link--primary.v-align-middle.no-underline.h4.js-navigation-open");
-            
+            fs.mkdirSync(name + "/" + projectName);
             //generating an .HTML file
-            fs.writeFileSync(name + "/" + name + ".html", body)
+            fs.writeFileSync(name + "/" + projectName + "/" + projectName + ".html", body)
             
             //generating an .TXT file and attaching the header 
-            fs.writeFileSync(name + "/" + name + ".txt","List of Issues for " + name + "\n\n\nFormat:\n\n" + "Issue Name" + "\nIssue Url\n\n");
+            fs.writeFileSync(name + "/" + projectName + "/" + projectName + ".txt","List of Issues for " + projectName + "\n\n\nFormat:\n\n" + "Issue Name" + "\nIssue Url\n\n");
             
             //generating an pdf
             let doc = new pdf;
-            doc.pipe(fs.createWriteStream(name + "/" +  name + ".pdf"))
-            doc.fontSize(22).text("Issue Links for " + name + "\n\n")
+            doc.pipe(fs.createWriteStream(name + "/" + projectName + "/" +  projectName + ".pdf"))
+            doc.fontSize(22).text("Issue Links for " + projectName + "\n\n")
             
             doc.fontSize(18).text("Format");
             doc.fontSize(16).text("Issue Name" + "\nIssue Url\n\n");
@@ -98,7 +96,7 @@ function getIssuesList(url, name){
                 let issueName = dataIssues(issueList[i]).text().trim();
                 let issueUrl = ("https://github.com" + dataIssues(issueList[i]).attr("href")) + "\n";
                 let object = "Issue Name => " + issueName + "\n" + "Url => " + issueUrl + "\n";
-                fs.appendFileSync(name + "/" + name + ".txt", object)
+                fs.appendFileSync(name + "/" + projectName + "/" + projectName + ".txt", object)
                 doc.addContent().fontSize(14).fillColor('black').text(issueName);
                 doc.addContent().fontSize(12).fillColor('blue').text(issueUrl + "\n");
             
