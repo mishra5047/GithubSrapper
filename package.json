@@ -1,0 +1,17 @@
+{
+  "name": "githubsrapper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.5",
+    "pdfkit": "^0.11.0",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
