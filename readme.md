@@ -7,7 +7,7 @@
 2. Creates an folder by the name of Topic which contains the **issues of top 5 projects in form an HTML, TXT, and PDF file**.
 
 ## Examples -
-1. 5 -> To get issues of top 5 projects on [Github.com](https://github.com/topics).
+1. Input 5 -> To get issues of top 5 projects on [Github.com](https://github.com/topics).
 
 ## Requirment
 * [Node Js (v10+)](https://nodejs.org/en/)

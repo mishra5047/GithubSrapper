@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*GitHub Scrapper - Made by Abhishek Mishra
 */ 
 let request = require('request');
