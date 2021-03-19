@@ -1,1 +1,0 @@
-Go to topic page -> get topic name & url -> show it on console
