@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 /*GitHub Scrapper - Made by Abhishek Mishra
 */ 
+let pdf =  require('jspdf');
+
 let request = require('request');
 let cheerio = require('cheerio');
 let fs = require("fs");
-let pdf = require("pdfkit");
+
 let $;
 
 let args = process.argv.slice(2)
@@ -51,6 +53,11 @@ function fileGen(url, name){
             let repoLink = item(".text-bold")
             fs.mkdirSync(name);
             console.log("\n\nTop projects for " + name + " are \n");
+
+            if(numberOfTopics == undefined || numberOfTopics == 0){
+                numberOfTopics = 5;
+            }
+
             for(let i = 0; i <= numberOfTopics; i++){
                     let string = "https://github.com" + item(repoLink[i]).attr("href");
                     if(string !== undefined){
@@ -65,8 +72,6 @@ function fileGen(url, name){
 
 function getIssuesList(url, name, projectName){
     
-    //use this incase you want to store the url and names in a list
-
     if(url === undefined){
         return;
     }
@@ -83,21 +88,42 @@ function getIssuesList(url, name, projectName){
             fs.writeFileSync(name + "/" + projectName + "/" + projectName + ".txt","List of Issues for " + projectName + "\n\n\nFormat:\n\n" + "Issue Name" + "\nIssue Url\n\n");
             
             //generating an pdf
-            let doc = new pdf;
-            doc.pipe(fs.createWriteStream(name + "/" + projectName + "/" +  projectName + ".pdf"))
+            const doc = new pdf.jsPDF();
+
+            doc.setFontSize(22).text("Issue Links for " + projectName + "\n\n", 10, 10);
+            doc.setFontSize(18).text("Format", 10, 30);
+            doc.setFontSize(16).text("Issue Name" + "\nIssue Url\n\n", 10, 35);
+            
+            /*doc.pipe(fs.createWriteStream(name + "/" + projectName + "/" +  projectName + ".pdf"))
             doc.fontSize(22).text("Issue Links for " + projectName + "\n\n")
             
             doc.fontSize(18).text("Format");
             doc.fontSize(16).text("Issue Name" + "\nIssue Url\n\n");
-            
-            
+            */
+            let start = 60;
+
             for(let i =0; i < issueList.length; i++){
                 let issueName = dataIssues(issueList[i]).text().trim();
                 let issueUrl = ("https://github.com" + dataIssues(issueList[i]).attr("href")) + "\n";
                 let object = "Issue Name => " + issueName + "\n" + "Url => " + issueUrl + "\n";
                 fs.appendFileSync(name + "/" + projectName + "/" + projectName + ".txt", object)
-                doc.addContent().fontSize(14).fillColor('black').text(issueName);
-                doc.addContent().fontSize(12).fillColor('blue').text(issueUrl + "\n");
+
+                let cal = start + (i * 10);
+                let check = 10; 
+                if(cal >= 200 && check >= 200){
+                    doc.addPage()
+                    check = 10;
+                    doc.setFontSize(14).setTextColor("#000000").text(issueName, 10, check + 10);
+                    doc.setFontSize(12).setTextColor("#0000FF").textWithLink(issueUrl, 10, check + 5, {url : issueUrl});
+                    check += 10;
+                }else{
+                    doc.setFontSize(14).setTextColor("#000000").text(issueName, 10, cal + 10);
+                    doc.setFontSize(12).setTextColor("#0000FF").textWithLink(issueUrl, 10, cal + 5, {url : issueUrl});
+                    check += 10; 
+                       
+                }
+
+                //doc.addContent().fontSize(12).fillColor('blue').text(issueUrl + "\n");
             
                 //doc.addContent().fillColor('blue').text(issueUrl + "\n")
             //.underline(1+10, 0, 160, 27, { color: '#0000FF' }).link(i + 10, 0, 160, 27, issueUrl);
@@ -106,7 +132,7 @@ function getIssuesList(url, name, projectName){
 
             }
 
-            doc.end();
+            doc.save(name + "/" + projectName + "/" +  projectName + ".pdf");
           //  console.log("number of issues for " + url + " are " + issueList.length);
            // console.log("***********************************\n");
         }
